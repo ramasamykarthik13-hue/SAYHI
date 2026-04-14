@@ -57,6 +57,40 @@ const messagesEl        = document.getElementById("messages");
 const messageInputArea  = document.getElementById("messageInputArea");
 const messageInput      = document.getElementById("messageInput");
 const sendBtn           = document.getElementById("sendBtn");
+const backBtn           = document.getElementById("backBtn");
+const sidebarEl         = document.getElementById("sidebar");
+const chatWindowEl      = document.getElementById("chatWindow");
+const sidebarOverlay    = document.getElementById("sidebarOverlay");
+
+// ===================== MOBILE NAV HELPERS =====================
+function isMobile() {
+  return window.innerWidth < 992;
+}
+
+function showChatPanel() {
+  if (!isMobile()) return;
+  sidebarEl.classList.add("sidebar-hidden");
+  chatWindowEl.classList.add("chat-open");
+  // iPad overlay
+  if (sidebarOverlay) {
+    sidebarOverlay.classList.remove("visible");
+  }
+}
+
+function showSidebarPanel() {
+  if (!isMobile()) return;
+  sidebarEl.classList.remove("sidebar-hidden");
+  chatWindowEl.classList.remove("chat-open");
+}
+
+// On resize back to desktop — reset panel states
+window.addEventListener("resize", () => {
+  if (!isMobile()) {
+    sidebarEl.classList.remove("sidebar-hidden");
+    chatWindowEl.classList.remove("chat-open");
+    if (sidebarOverlay) sidebarOverlay.classList.remove("visible");
+  }
+});
 
 // ===================== HELPERS =====================
 function showError(msg) {
@@ -434,6 +468,9 @@ function openChat(chatId) {
   chatHeader.classList.remove("hidden");
   messageInputArea.classList.remove("hidden");
 
+  // Mobile: slide to chat panel
+  showChatPanel();
+
   // Set header
   if (activeOtherUser) {
     chatHeaderName.textContent = activeOtherUser.username;
@@ -527,6 +564,21 @@ loginBtn.addEventListener("click", handleLogin);
 signupBtn.addEventListener("click", handleSignup);
 logoutBtn.addEventListener("click", handleLogout);
 sendBtn.addEventListener("click", sendMessage);
+
+// Back button — return to sidebar on mobile/tablet
+if (backBtn) {
+  backBtn.addEventListener("click", () => {
+    showSidebarPanel();
+  });
+}
+
+// iPad overlay tap — close sidebar
+if (sidebarOverlay) {
+  sidebarOverlay.addEventListener("click", () => {
+    sidebarOverlay.classList.remove("visible");
+    sidebarEl.classList.add("sidebar-hidden");
+  });
+}
 
 messageInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
